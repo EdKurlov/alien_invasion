@@ -1,3 +1,6 @@
+import pygame
+import sys
+
 class Settings:
 	"""Класс для хранения всех настроек игры Alien Invasion"""
 	
