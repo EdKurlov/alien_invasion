@@ -70,11 +70,11 @@ class AlienInvasion:
         available_space_x = self.settings.screen_width - (2 * alien_width)
         number_aliens_x = available_space_x // (2 * alien_width)
 
-        """Определяет количество рядовб помещающихся на экране"""
+        """Определяет количество рядов, помещающихся на экране"""
         ship_height = self.ship.rect.height
         available_space_y = (self.settings.screen_height -
                                 (3 * alien_height) - ship_height)
-        number_rows = available_space_y // (2 * alien_height)
+        number_rows = available_space_y // (4 * alien_height)
 
         # Создание флота пришельцев
         for row_number in range(number_rows):
@@ -113,6 +113,23 @@ class AlienInvasion:
         """Обновляет позиции снарядов и уничтожает старые снаряды"""
         # Обновление позиций снарядов
         self.bullets.update()
+        # Удаление исчезнувших снарядов
+        for bullet in self.bullets.copy():
+            if bullet.rect.bottom <= 0:
+                self.bullets.remove(bullet)
+
+        self._check_bullet_alien_collisions()
+        
+    def _check_bullet_alien_collisions(self):
+        """Обработка коллизий снарядов с пришельцами"""
+        # При обнаружении попадания удалить снаряд и пришельца
+        collisions = pygame.sprite.groupcollide(
+                self.bullets, self.aliens, True, True)
+
+        if not self.aliens:
+            # Уничтожение существующих снарядов и создание нового флота
+            self.bullets.empty()
+            self._create_fleet()
 
     def _update_aliens(self):
         """
@@ -121,12 +138,6 @@ class AlienInvasion:
         """
         self._check_fleet_edges()
         self.aliens.update()
-
-        # Удаление снарядов, вышедших за край экрана
-        for bullet in self.bullets.copy():
-            if bullet.rect.bottom <= 0:
-                self.bullets.remove(bullet)
-        print(len(self.bullets))
 
     def _update_screen(self):
         """Обновляет изображения на экране и отображает новый экран"""
